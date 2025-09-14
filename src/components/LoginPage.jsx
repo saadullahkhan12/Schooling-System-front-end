@@ -33,23 +33,27 @@ const LoginPage = ({ onLogin }) => {
   const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     setSuccess('');
-    
+  
     try {
       const endpoint = isLoginMode ? 'login' : 'register';
-      const url = `http://localhost:3001/auth/${endpoint}`;
-      
+  
+      // ✅ CORRECT: Proxy use karega
+      const url = `/auth/${endpoint}`;
+  
       const requestData = {
         username,
         password,
-        ...(isLoginMode ? {} : { email, role })
+        ...(isLoginMode ? {} : { email, role }),
       };
-
+  
+      console.log("🌐 Sending request to:", url);
+      console.log("📦 Request Data:", requestData);
+  
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -57,34 +61,36 @@ const LoginPage = ({ onLogin }) => {
         },
         body: JSON.stringify(requestData),
       });
-
+  
       const data = await response.json();
-
-      if (response.ok) {
-        if (isLoginMode) {
-          // Store token and user data
-          localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
-          onLogin();
-        } else {
-          setSuccess('Registration successful! Please login with your credentials.');
-          setIsLoginMode(true);
-          // Clear form
-          setUsername('');
-          setPassword('');
-          setEmail('');
-        }
-      } else {
-        setError(data.message || 'An error occurred');
+      console.log("✅ Response from backend:", data);
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
       }
+  
+      if (isLoginMode) {
+        // Store token and user data
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        onLogin(); // Redirect to dashboard
+      } else {
+        setSuccess('Registration successful! Please login.');
+        setIsLoginMode(true); // Switch to login mode
+        // Clear form
+        setUsername('');
+        setPassword('');
+        setEmail('');
+      }
+  
     } catch (error) {
-      setError('Network error. Please check your connection.');
+      setError(error.message || 'Network error. Please check your connection.');
       console.error('Auth error:', error);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const handleTogglePassword = () => {
     setShowPassword(!showPassword);
   };
