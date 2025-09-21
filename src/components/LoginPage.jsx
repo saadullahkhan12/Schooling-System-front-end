@@ -376,7 +376,7 @@ const LoginPage = ({ onLogin }) => {
               {/* Footer */}
               <Box sx={{ mt: 4, textAlign: 'center' }}>
                 <Typography variant="caption" color="text.secondary">
-                  © 2025 Baseline Academy. All rights reserved.
+                  © 2025 Baseline Academy. All rights reserved
                 </Typography>
               </Box>
             </CardContent>
