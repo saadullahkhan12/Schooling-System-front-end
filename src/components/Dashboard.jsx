@@ -36,6 +36,7 @@ import {
   Notifications as NotificationsIcon,
   AccountCircle as AccountCircleIcon,
   Settings as SettingsIcon,
+  Close as CloseIcon,
 } from '@mui/icons-material';
 import myLogo from '../assets/my_logo.jpeg';
 import DashboardContent from './DashboardContent';
@@ -47,6 +48,7 @@ import Homework from './Homework';
 const Dashboard = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [anchorEl, setAnchorEl] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -60,6 +62,14 @@ const Dashboard = ({ onLogout }) => {
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleDrawerClose = () => {
+    setMobileOpen(false);
+  };
+
+  const handleSidebarToggle = () => {
+    setSidebarOpen(!sidebarOpen);
   };
 
   const handleProfileMenuOpen = (event) => {
@@ -92,7 +102,26 @@ const Dashboard = ({ onLogout }) => {
 
   const drawer = (
     <Box sx={{ width: 280 }}>
-      <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid', borderColor: 'divider' }}>
+      <Box sx={{ p: 3, textAlign: 'center', borderBottom: '1px solid', borderColor: 'divider', position: 'relative' }}>
+        {/* Close button for drawer */}
+        <IconButton
+          onClick={isMobile ? handleDrawerClose : handleSidebarToggle}
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            display: 'block',
+            color: 'text.secondary',
+            zIndex: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+              color: 'text.primary',
+            },
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+        
         <Box
           sx={{
             width: 80,
@@ -183,11 +212,18 @@ const Dashboard = ({ onLogout }) => {
       <Drawer
         variant="temporary"
         open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{ keepMounted: true }}
+        onClose={handleDrawerClose}
+        ModalProps={{ 
+          keepMounted: true,
+          disableScrollLock: true,
+        }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 280 },
+          '& .MuiDrawer-paper': { 
+            boxSizing: 'border-box', 
+            width: 280,
+            zIndex: 1300,
+          },
         }}
       >
         {drawer}
@@ -200,12 +236,14 @@ const Dashboard = ({ onLogout }) => {
           display: { xs: 'none', md: 'block' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
-            width: 280,
-            borderRight: '1px solid',
+            width: sidebarOpen ? 280 : 0,
+            borderRight: sidebarOpen ? '1px solid' : 'none',
             borderColor: 'divider',
+            transition: 'width 0.3s ease',
+            overflow: 'hidden',
           },
         }}
-        open
+        open={sidebarOpen}
       >
         {drawer}
       </Drawer>
@@ -228,8 +266,8 @@ const Dashboard = ({ onLogout }) => {
               color="inherit"
               aria-label="open drawer"
               edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2, display: { md: 'none' } }}
+              onClick={isMobile ? handleDrawerToggle : handleSidebarToggle}
+              sx={{ mr: 2 }}
             >
               <MenuIcon />
             </IconButton>
